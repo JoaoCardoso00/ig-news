@@ -4,7 +4,7 @@ import { prismic } from "../../services/prismic";
 import * as prismicHelper from "@prismicio/helpers";
 import Head from "next/head";
 
-import styles from './post.module.scss';
+import styles from "./post.module.scss";
 
 interface PostProps {
   post: {
@@ -26,7 +26,10 @@ export default function Post({ post }: PostProps) {
         <article className={styles.post}>
           <h1>{post.title}</h1>
           <time>{post.updatedAt}</time>
-          <div className={styles.postContent} dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div
+            className={styles.postContent}
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         </article>
       </main>
     </>
@@ -40,8 +43,14 @@ export const getServerSideProps: GetServerSideProps = async ({
   const session = await getSession({ req });
   const { slug } = params;
 
-  // if(!session) {
-  // }
+  if(!session.activeSubscription) {
+      return {
+          redirect: {
+              destination: '/',
+              permanent: false,
+          }
+      }
+  }
 
   const response = await prismic.getByUID("post", String(slug), {});
 

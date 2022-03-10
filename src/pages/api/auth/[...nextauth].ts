@@ -15,6 +15,41 @@ export default NextAuth({
     // ...add more providers here
   ],
   callbacks: {
+    async session({ session: Session, user: User, token: JWT }) {
+      Session.user.email;
+
+      try {
+        const userActiveSubscription = await fauna.query(
+          q.Get(
+            q.Intersection([
+              q.Match(
+                q.Index("subscription_by_user_ref"),
+                q.Select(
+                  "ref",
+                  q.Get(
+                    q.Match(
+                      q.Index("user_by_email"),
+                      q.Casefold(Session.user.email)
+                    )
+                  )
+                )
+              ),
+              q.Match(q.Index("subscription_by_status"), "active"),
+            ])
+          )
+        );
+
+        return {
+          ...Session,
+          activeSubscription: userActiveSubscription,
+        };
+      } catch {
+        return {
+          ...Session,
+          activeSubscription: null,
+        };
+      }
+    },
     async signIn({ user, account, profile }) {
       const { email } = user;
 
