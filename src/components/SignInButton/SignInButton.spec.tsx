@@ -15,7 +15,7 @@ describe("SignInButton component", () => {
     expect(screen.getByText("Sign in with Github")).toBeInTheDocument();
   });
 
-  test("sign in button is rendering correctly when user is authenticated", () => {
+  it("should be able to render correctly when user is authenticated", () => {
     const useSessionMocked = jest.mocked(useSession);
 
     useSessionMocked.mockReturnValueOnce({
